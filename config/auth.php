@@ -75,7 +75,8 @@ return [
     'providers' => [
         'admin' => [
             'driver' => 'ldap',
-            'model' => LdapRecord\Models\OpenLDAP\User::class,
+            //'model' => LdapRecord\Models\OpenLDAP\User::class,
+            'model' => LdapRecord\Models\ActiveDirectory\User::class,
             'rules' => [],
             'database' => [
                 'model' => App\Models\User::class,

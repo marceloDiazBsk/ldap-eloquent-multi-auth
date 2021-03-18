@@ -8,6 +8,7 @@ use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
+use LdapRecord\Models\ActiveDirectory\User as ActiveDirectoryUser;
 
 class LoginController extends Controller{
     /*
@@ -39,13 +40,33 @@ class LoginController extends Controller{
         return view('auth.login', ['url' => 'admin']);
     }
 
-    public function adminLogin(Request $request){
+    //ldap.forumsys.com
+    /*public function adminLogin(Request $request){
         $credentials = [
             'uid' =>  $request->username,
             'password' => $request->password
         ];
         if (Auth::guard('admin')->attempt($credentials, $request->get('remember'))) {
             return redirect()->intended('/home/admin');
+        }
+        return back()->withInput($request->only('username', 'remember'));
+    }*/
+
+    //active directory
+    public function adminLogin(Request $request){
+        $credentials = [
+            'samaccountname' =>  $request->username,
+            'password' => $request->password
+        ];
+        if (Auth::guard('admin')->attempt($credentials, $request->get('remember'))) {
+            if($this->validateGroup()){
+                return redirect()->intended('/home/admin');
+            }else{
+                Auth::guard('admin')->user()->delete();
+                Auth::logout();
+                return back()->withInput($request->only('username', 'remember'));
+            }
+            
         }
         return back()->withInput($request->only('username', 'remember'));
     }
@@ -63,6 +84,17 @@ class LoginController extends Controller{
             return redirect()->intended('/home/provider');
         }
         return back()->withInput($request->only('email', 'remember'));
+    }
+
+    private function validateGroup(){
+        $user = Auth::guard('admin')->user();
+        $activeDirectoryUser = ActiveDirectoryUser::findByGuid($user->guid);
+        $memberOf = $activeDirectoryUser->memberof;
+        $memberList = array();
+        foreach($memberOf as $member){
+            $memberList = array_merge($memberList,explode(',',$member));
+        }
+        return in_array('CN=PL_Users',$memberList);
     }
 
 }
