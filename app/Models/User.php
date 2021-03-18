@@ -13,7 +13,7 @@ class User extends Authenticatable implements LdapAuthenticatable
 {
     use HasFactory, Notifiable, AuthenticatesWithLdap;
 
-    protected $guard = ['provider'];
+    protected $table = 'users';
 
 
     /**

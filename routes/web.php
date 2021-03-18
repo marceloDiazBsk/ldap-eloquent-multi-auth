@@ -21,12 +21,22 @@ Auth::routes();
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
-Route::get('/login/admin', [App\Http\Controllers\Auth\LoginController::class, 'showAdminLoginForm']);
-Route::get('/login/provider', [App\Http\Controllers\Auth\LoginController::class, 'showProviderLoginForm']);
 
-Route::post('/login/admin', [App\Http\Controllers\Auth\LoginController::class, 'adminLogin'])->name('admin.login');
-Route::post('/login/provider', [App\Http\Controllers\Auth\LoginController::class, 'providerLogin'])->name('provider.login');
+Route::group(['middleware' => ['auth:admin']], function(){
+    Route::get('/home/admin', [App\Http\Controllers\HomeController::class, 'adminHome'])->name('home.admin');
+});
+
+Route::group(['middleware' => ['auth:provider']], function(){
+    Route::get('/home/provider', [App\Http\Controllers\HomeController::class, 'providerHome'])->name('home.provider');
+});
+
+Route::group(['middleware' => ['guest:admin']], function(){
+    Route::get('/login/admin', [App\Http\Controllers\Auth\LoginController::class, 'showAdminLoginForm']);
+    Route::post('/login/admin', [App\Http\Controllers\Auth\LoginController::class, 'adminLogin'])->name('admin.login');
+});
 
 
-Route::get('/home/admin', [App\Http\Controllers\HomeController::class, 'adminHome'])->name('home.admin');
-Route::get('/home/provider', [App\Http\Controllers\HomeController::class, 'providerHome'])->name('home.provider');
+Route::group(['middleware' => ['guest:provider']], function(){
+    Route::get('/login/provider', [App\Http\Controllers\Auth\LoginController::class, 'showProviderLoginForm']);
+    Route::post('/login/provider', [App\Http\Controllers\Auth\LoginController::class, 'providerLogin'])->name('provider.login');
+});

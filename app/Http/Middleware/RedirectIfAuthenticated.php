@@ -38,7 +38,7 @@ class RedirectIfAuthenticated
                 return redirect('/home/provider');
             }
             if (Auth::guard($guard)->check()) {
-                dd('Ingreso aca');
+                //dd('Ingreso aca');
                 return redirect('/home');
             }
         }

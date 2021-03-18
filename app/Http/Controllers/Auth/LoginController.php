@@ -35,11 +35,6 @@ class LoginController extends Controller{
      *
      * @return void
      */
-    public function __construct(){
-        $this->middleware('guest:admin')->except('logout');
-        $this->middleware('guest:provider')->except('logout');
-    }
-
     public function showAdminLoginForm(){
         return view('auth.login', ['url' => 'admin']);
     }
@@ -50,9 +45,6 @@ class LoginController extends Controller{
             'password' => $request->password
         ];
         if (Auth::guard('admin')->attempt($credentials, $request->get('remember'))) {
-            $user = Auth::user();
-            dd($user);
-            error_log('Logueado correctamente');
             return redirect()->intended('/home/admin');
         }
         return back()->withInput($request->only('username', 'remember'));
@@ -68,7 +60,6 @@ class LoginController extends Controller{
             'password' => $request->password
         ];
         if (Auth::guard('provider')->attempt($credentials, $request->get('remember'))) {
-            error_log('Logueado correctamente');
             return redirect()->intended('/home/provider');
         }
         return back()->withInput($request->only('email', 'remember'));
